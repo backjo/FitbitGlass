@@ -28,27 +28,32 @@ exports.activities = function(req, res) {
       }
 
       data = JSON.parse(data);
+      if(data[0]) {
+        User.findOne({fitbit: data[0].ownerId}, function(err, user) {
+          if(user) {
+            user.getAccessToken(function(token) {s
+              mirrorClient.oauth2Client.credentials = {
+                  access_token:token,
+                  refresh_token:user.getRefreshToken()
+              };
+              mirrorClient.initWithCreds(function(err, cb) {
+                mirrorClient.insertTimelineItem({"text": "Fitbit ping"}, function(){});
+                mirrorClient.listTimelineItems(50, function(err, list){
+                              console.log(list);
+                              for(var i = 0; i < list.items.length; i++) {
+                                  console.log("Timeline item: ", list.items[i].text);
+                              }
+                          });
+              });
 
-      console.log(data);
+            });
+          }
+        })
+      }
     });
   }
 
   if(req.user) {
-    req.user.getAccessToken(function(token) {s
-      mirrorClient.oauth2Client.credentials = {
-          access_token:token,
-          refresh_token:req.user.getRefreshToken()
-      };
-      mirrorClient.initWithCreds(function(err, cb) {
-        mirrorClient.insertTimelineItem({"text": "Hackathon casualties"}, function(){});
-        mirrorClient.listTimelineItems(50, function(err, list){
-                      console.log(list);
-                      for(var i = 0; i < list.items.length; i++) {
-                          console.log("Timeline item: ", list.items[i].text);
-                      }
-                  });
-      });
 
-    });
   }
 }
