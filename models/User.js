@@ -68,7 +68,7 @@ userSchema.methods.getMirrorClient = function(callback) {
   this.getAccessToken(function(token) {
     mirrorClient.oauth2Client.credentials = {
         access_token:token,
-        refresh_token:user.getRefreshToken()
+        refresh_token:this.getRefreshToken()
     };
     mirrorClient.initWithCreds(function(err, cb) {
       callback(mirrorClient);
