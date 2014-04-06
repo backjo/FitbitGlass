@@ -3,6 +3,13 @@ var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var refresh = require('google-refresh-token');
 var secrets = require('../config/secrets');
+var mirrorClient = require('mirror-api-client')({
+  clientId: secrets.google.clientID,
+  clientSecret: secrets.google.clientSecret,
+  redirectUri: 'http://jonahback.com:3000/auth/google/callback',
+  scope: ''
+});
+
 
 var userSchema = new mongoose.Schema({
   email: { type: String, unique: true, lowercase: true },
@@ -56,6 +63,18 @@ userSchema.methods.comparePassword = function(candidatePassword, cb) {
     cb(null, isMatch);
   });
 };
+
+userSchema.methods.getMirrorClient = function(callback) {
+  this.getAccessToken(function(token) {
+    mirrorClient.oauth2Client.credentials = {
+        access_token:token,
+        refresh_token:user.getRefreshToken()
+    };
+    mirrorClient.initWithCreds(function(err, cb) {
+      callback(mirrorClient);
+    });
+  });
+}
 
 userSchema.methods.getAccessToken = function(callback) {
   console.log('getAccessToken called');
