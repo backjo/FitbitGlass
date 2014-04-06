@@ -65,10 +65,11 @@ userSchema.methods.comparePassword = function(candidatePassword, cb) {
 };
 
 userSchema.methods.getMirrorClient = function(callback) {
+  var self = this;
   this.getAccessToken(function(token) {
     mirrorClient.oauth2Client.credentials = {
         access_token:token,
-        refresh_token:this.getRefreshToken()
+        refresh_token:self.getRefreshToken()
     };
     mirrorClient.initWithCreds(function(err, cb) {
       callback(mirrorClient);
