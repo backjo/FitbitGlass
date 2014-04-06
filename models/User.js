@@ -1,16 +1,15 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
+var refresh = require('google-refresh-token');
+var secrets = require('../config/secrets');
 
 var userSchema = new mongoose.Schema({
   email: { type: String, unique: true, lowercase: true },
   password: String,
 
-  facebook: String,
-  twitter: String,
   google: String,
-  github: String,
-  linkedin: String,
+  fitbit: String,
   tokens: Array,
 
   profile: {
@@ -57,6 +56,46 @@ userSchema.methods.comparePassword = function(candidatePassword, cb) {
     cb(null, isMatch);
   });
 };
+
+userSchema.methods.getAccessToken = function(callback) {
+  console.log('getAccessToken called');
+  var googleToken = null;
+  var idx = 0;
+  for(idx = 0; idx < this.tokens.length; idx++) {
+    if(this.tokens[idx].kind === 'google') {
+      googleToken = this.tokens[idx];
+      break;
+    }
+  }
+
+  if(googleToken.expiry < new Date()) {
+    var user = this;
+    console.log('getting new token');
+    refresh(googleToken.refreshToken, secrets.google.clientID, secrets.google.clientSecret, function(err, json, res) {
+      if (err)
+        console.log(err);
+      user.tokens[idx].accessToken = json.accessToken
+      user.tokens[idx].expiry = new Date(+new Date + parseInt(json.expiresIn, 10));
+      callback(json.accessToken);
+    })
+  }
+  else {
+    callback(json.accessToken);
+  }
+
+}
+
+userSchema.methods.getRefreshToken = function(callback) {
+  var googleToken = null;
+  var idx = 0;
+  for(idx = 0; idx < this.tokens.length; idx++) {
+    if(this.tokens[idx].kind === 'google') {
+      googleToken = this.tokens[idx];
+      return googleToken.refreshToken;
+      break;
+    }
+  }
+}
 
 /**
  * Get URL to a user's gravatar.
