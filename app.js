@@ -76,7 +76,8 @@ app.use(connectAssets({
 app.use(express.compress());
 app.use(express.logger('dev'));
 app.use(express.cookieParser());
-app.use(express.json());
+//app.use(express.json());
+app.use(express.bodyParser());
 app.use(express.urlencoded());
 app.use(expressValidator());
 app.use(express.methodOverride());
@@ -116,7 +117,7 @@ app.use(express.errorHandler());
 /**
  * Application routes.
  */
-app.get('/subscription/activity', subscriptionController.activities);
+app.post('/subscription/activity', subscriptionController.activities);
 
 app.get('/', homeController.index);
 app.get('/login', userController.getLogin);
