@@ -55,8 +55,6 @@ var conditionalCSRF = function (req, res, next) {
     '/subscription/activity',
   ];
 
-  req.session._csrf || (req.session._csrf = connect.utils.uid(24));
-
   if (req.method !== 'POST') {
     next();
     return;
