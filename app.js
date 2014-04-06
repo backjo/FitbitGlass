@@ -49,6 +49,25 @@ var hour = 3600000;
 var day = (hour * 24);
 var month = (day * 30);
 
+
+var conditionalCSRF = function (req, res, next) {
+  var whitelist = [
+    '/subscription/activity',
+  ];
+
+  req.session._csrf || (req.session._csrf = connect.utils.uid(24));
+
+  if (req.method !== 'POST') {
+    next();
+    return;
+  }
+  if (whitelist.indexOf(req.url) !== -1) {
+    next();
+  } else {
+    (express.csrf())(req, res, next);
+  }
+};
+
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -70,7 +89,7 @@ app.use(express.session({
     auto_reconnect: true
   })
 }));
-app.use(express.csrf());
+app.use(conditionalCSRF);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(function(req, res, next) {
