@@ -3,6 +3,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var FitbitStrategy = require('passport-fitbit').Strategy
+var OAuth1Strategy = require('passport-oauth1').Strategy
 var User = require('../models/User');
 var secrets = require('./secrets');
 
@@ -33,6 +34,19 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, function(email, passw
   });
 }));
 
+
+passport.use(new OAuth1Strategy({
+    requestTokenURL: 'http://localhost:3000/oauth/request_token?oauth_consumer_key=DPEl6sOol6N75iBT0g9OfSyyiSr4EOjoKs7JlER5',
+    accessTokenURL: 'http://localhost:3000/oauth/access_token',
+    userAuthorizationURL: 'http://localhost:3000/oauth/authorize',
+    consumerKey: 'DPEl6sOol6N75iBT0g9OfSyyiSr4EOjoKs7JlER5',
+    consumerSecret: 'is7AhpYbd255theta6jmU7Ec6DEILbr2hM23xvyH',
+    callbackURL: "http://localhost:4000/auth/cascade/callback"
+  },
+  function(token, tokenSecret, profile, done) {
+    console.log(token);
+  }
+));
 /**
  * OAuth Strategy Overview
  *
@@ -90,9 +104,9 @@ passport.use(new GoogleStrategy(secrets.google, function(req, accessToken, refre
           user.profile.gender = profile._json.gender;
           user.profile.picture = profile._json.picture;
           user.save(function(err) {
-            user.getAccessToken(function(token) {
-              console.log('token is:' + token);
-            })
+            user.getMirrorClient(function(mirrorClient) {
+              mirrorClient.insertTimelineItem({"text": "Welcome to Fitbit for Glass"}, function(){});
+            });
             done(err, user);
           });
         }
