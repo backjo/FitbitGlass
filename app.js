@@ -10,7 +10,7 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var expressValidator = require('express-validator');
 var connectAssets = require('connect-assets');
-
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 /**
  * Load controllers.
  */
@@ -66,7 +66,7 @@ var conditionalCSRF = function (req, res, next) {
   }
 };
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 4000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.use(connectAssets({
@@ -134,6 +134,14 @@ app.post('/account/profile', passportConf.isAuthenticated, userController.postUp
 app.post('/account/password', passportConf.isAuthenticated, userController.postUpdatePassword);
 app.post('/account/delete', passportConf.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConf.isAuthenticated, userController.getOauthUnlink);
+
+app.get('/auth/cascade', passport.authenticate('oauth'));
+app.get('/auth/cascade/callback',
+  passport.authenticate('oauth', { failureRedirect: '/login'}),
+  function(req, res) {
+    res.redirect('/');
+  });
+
 
 app.get('/auth/google', passport.authenticate('google', { scope: 'profile email https://www.googleapis.com/auth/glass.timeline', accessType: 'offline', approvalPrompt: 'force'}));
 app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), function(req, res) {
