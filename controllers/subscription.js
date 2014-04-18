@@ -1,6 +1,7 @@
 var secrets = require('../config/secrets.js');
 var User = require('../models/User.js');
 var fs = require('fs');
+var fitbit = require('fitbit');
 
 exports.index = function(req, res) {
   res.render('home', {
@@ -26,13 +27,33 @@ exports.activities = function(req, res) {
         User.findOne({fitbit: data[0].ownerId}, function(err, user) {
           if(user) {
             user.getMirrorClient(function(mirrorClient) {
-              mirrorClient.insertTimelineItem({"text": "Fitbit ping2"}, function(){});
-              mirrorClient.listTimelineItems(50, function(err, list){
-                            console.log(list);
-                            for(var i = 0; i < list.items.length; i++) {
-                                console.log("Timeline item: ", list.items[i].text);
-                            }
-                        });
+
+              for(idx = 0; idx < req.user.tokens.length; idx++) {
+                if(user.tokens[idx].kind === 'fitbit') {
+                  accessToken = user.tokens[idx].accessToken;
+                  accessSecret = user.tokens[idx].secret;
+                  break;
+                }
+              }
+
+              if(accessToken && accessSecret) {
+                var client = new fitbit(secrets.fitbit.consumerKey, secrets.fitbit.consumerSecret, {
+                    accessToken: accessToken,
+                    accessTokenSecret: accessSecret,
+                    unitMeasure: 'en_GB'
+                  });
+                client.getActivities(function (err, activities) {
+                  var msgString = 'Progress Today: ' + activities.steps() + ' / ' + activities._attributes.goals.steps;
+                  mirrorClient.insertTimelineItem({"text": msgString}, function(){});
+                  mirrorClient.listTimelineItems(50, function(err, list){
+                    console.log(list);
+                    for(var i = 0; i < list.items.length; i++) {
+                      console.log("Timeline item: ", list.items[i].text);
+                    }
+                  });
+                });
+
+              }
             });
           }
         })
