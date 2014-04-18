@@ -159,6 +159,16 @@ app.get('/auth/fitbit/callback', passport.authenticate('fitbit', { failureRedire
  * Start Express server.
  */
 
+var https = require('https');
+var fs = require('fs');
+
+var options = {
+    key: fs.readFileSync('/home/jonah/servernopass.key'),
+    cert: fs.readFileSync('/home/jonah/jonahback_com.crt')
+}
+
+https.createServer(options, app).listen(3001); 
+
 app.listen(app.get('port'), function() {
   console.log("✔ Express server listening on port %d in %s mode", app.get('port'), app.get('env'));
 });

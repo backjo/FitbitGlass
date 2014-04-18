@@ -17,6 +17,7 @@ var userSchema = new mongoose.Schema({
 
   google: String,
   fitbit: String,
+    timelineItem: String,
   tokens: Array,
 
   profile: {
@@ -71,8 +72,8 @@ userSchema.methods.getMirrorClient = function(callback) {
         access_token:token,
         refresh_token:self.getRefreshToken()
     };
-    mirrorClient.initWithCreds(function(err, cb) {
-      callback(mirrorClient);
+    mirrorClient.connect(function(err, client) {
+	callback(mirrorClient);
     });
   });
 }
