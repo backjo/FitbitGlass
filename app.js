@@ -50,7 +50,9 @@ var hour = 3600000;
 var day = (hour * 24);
 var month = (day * 30);
 
-
+/**
+ * Routes that don't require CSRF
+ */
 var conditionalCSRF = function (req, res, next) {
   var whitelist = [
     '/subscription/activity',
