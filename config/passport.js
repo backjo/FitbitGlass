@@ -33,7 +33,7 @@ var subscribe = function(user) {
       })
 
       client._oauth.post('https://api.fitbit.com/1/user/-/activities/api\
-Subscriptions/activity.json',client.accessToken, client.accessTokenSecret,null,null,function (err, data, res) {
+Subscriptions/' + user.fitbit + '-activity.json',client.accessToken, client.accessTokenSecret,null,null,function (err, data, res) {
                                         console.log(data);
                                 });
 }

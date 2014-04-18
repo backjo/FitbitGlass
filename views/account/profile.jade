@@ -15,11 +15,19 @@ block content
       .col-sm-4
         input.form-control(type='text', name='name', id='name', value='#{user.profile.name}')
     .form-group
+      label.col-sm-2.control-label(for='name') Goal Reached Notification
+      .col-sm-4
+        input.form-control(type='checkbox', name='goalReached', id='goalReached', value='checked')
+    .form-group
+      label.col-sm-2.control-label(for='name') Status Updated Notification
+      .col-sm-4
+        input.form-control(type='checkbox', name='statusUpdate', id='statusUpdate', value='checked')
+
+    .form-group
       .col-sm-offset-2.col-sm-4
         button.btn.btn.btn-primary(type='submit')
           i.fa.fa-magnet
           | Update Profile
-
 
   .page-header
     h3 Delete Account

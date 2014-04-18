@@ -33,6 +33,12 @@ exports.index = function(req, res) {
            goal: activities._attributes.goals.steps
          });
        });
+    } else {
+      res.render('home', {
+        title: 'Home',
+        steps: 0,
+        goal: 0
+      });
     }
   } else {
     res.render('home', {
