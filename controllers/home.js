@@ -10,8 +10,10 @@ exports.index = function(req, res) {
   var idx = 0;
   if(req.user) {
     var fitbitToken = req.user.getFitbitToken();
-    accessToken = fitbitToken.accessToken;
-    accessSecret = fitbitToken.secret;
+    if(fitbitToken) {
+      accessToken = fitbitToken.accessToken;
+      accessSecret = fitbitToken.secret;
+    }
 
     if(accessToken && accessSecret) {
 	     var client = new fitbit(secrets.fitbit.consumerKey, secrets.fitbit.consumerSecret, {
