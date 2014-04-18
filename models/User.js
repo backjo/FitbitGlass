@@ -9,61 +9,23 @@ var mirrorClient = require('mirror-api-client')({
   redirectUri: 'http://jonahback.com:3000/auth/google/callback',
   scope: ''
 });
+var _ = require('underscore');
 
 
 var userSchema = new mongoose.Schema({
   email: { type: String, unique: true, lowercase: true },
-  password: String,
 
   google: String,
   fitbit: String,
-    timelineItem: String,
+  timelineItem: String,
   tokens: Array,
 
   profile: {
     name: { type: String, default: '' },
-    gender: { type: String, default: '' },
-    location: { type: String, default: '' },
-    website: { type: String, default: '' },
     picture: { type: String, default: '' }
   },
 
-  resetPasswordToken: String,
-  resetPasswordExpires: Date
 });
-
-/**
- * Hash the password for security.
- * "Pre" is a Mongoose middleware that executes before each user.save() call.
- */
-
-userSchema.pre('save', function(next) {
-  var user = this;
-
-  if (!user.isModified('password')) return next();
-
-  bcrypt.genSalt(5, function(err, salt) {
-    if (err) return next(err);
-
-    bcrypt.hash(user.password, salt, null, function(err, hash) {
-      if (err) return next(err);
-      user.password = hash;
-      next();
-    });
-  });
-});
-
-/**
- * Validate user's password.
- * Used by Passport-Local Strategy for password validation.
- */
-
-userSchema.methods.comparePassword = function(candidatePassword, cb) {
-  bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-    if (err) return cb(err);
-    cb(null, isMatch);
-  });
-};
 
 userSchema.methods.getMirrorClient = function(callback) {
   var self = this;
@@ -73,7 +35,7 @@ userSchema.methods.getMirrorClient = function(callback) {
         refresh_token:self.getRefreshToken()
     };
     mirrorClient.connect(function(err, client) {
-	callback(mirrorClient);
+	     callback(mirrorClient);
     });
   });
 }
@@ -96,7 +58,9 @@ userSchema.methods.getAccessToken = function(callback) {
       if (err)
         console.log(err);
       user.tokens[idx].accessToken = json.accessToken
-      user.tokens[idx].expiry = new Date(+new Date + parseInt(json.expiresIn, 10));
+      user.tokens[idx].expiry = new Date();
+      user.tokens[idx].expiry.setSeconds(user.tokens[idx].expiry.getSeconds() + parseInt(json.expiresIn, 10) );
+      user.save();
       callback(json.accessToken);
     })
   }
@@ -106,16 +70,12 @@ userSchema.methods.getAccessToken = function(callback) {
 
 }
 
-userSchema.methods.getRefreshToken = function(callback) {
-  var googleToken = null;
-  var idx = 0;
-  for(idx = 0; idx < this.tokens.length; idx++) {
-    if(this.tokens[idx].kind === 'google') {
-      googleToken = this.tokens[idx];
-      return googleToken.refreshToken;
-      break;
-    }
-  }
+userSchema.methods.getRefreshToken = function() {
+  return _.findWhere(this.tokens, {kind: 'google'}).refreshToken
+}
+
+userSchema.methods.getFitbitToken = function() {
+  return _.findWhere(this.tokens, {kind: 'fitbit'});
 }
 
 /**

@@ -111,6 +111,7 @@ passport.use(new FitbitStrategy( secrets.fitbit, function(req, accessToken, secr
       } else {
         User.findById(req.user.id, function(err, user) {
           user.fitbit = profile.id;
+          user.tokens = _.reject(user.tokens, function(token) { return token.kind === 'fitbit'; });
           user.tokens.push({ kind: 'fitbit', accessToken: accessToken, secret: secret });
           user.save(function(err) {
             req.flash('info', { msg: 'Fitbit account has been linked.' });
@@ -121,7 +122,14 @@ passport.use(new FitbitStrategy( secrets.fitbit, function(req, accessToken, secr
     });
   } else {
     User.findOne({ fitbit: profile.id }, function(err, existingUser) {
-      if (existingUser) return done(null, existingUser);
+      if (existingUser) {
+        existingUser.tokens = _.reject(existingUser.tokens, function(token) { return token.kind === 'fitbit'; });
+        existingUser.tokens.push({ kind: 'fitbit', accessToken: accessToken, secret: secret });
+        existingUser.save(function(err) {
+        });
+        return done(err, existingUser);
+
+      }
       User.findOne({ email: profile._json.email }, function(err, existingEmailUser) {
         if (existingEmailUser) {
           req.flash('errors', { msg: 'There is already an account using this email address. Sign in to that account and link it with Google manually from Account Settings.' });

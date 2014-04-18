@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sahat/hackathon-starter.git"
+    "url": "https://github.com/backjo/fitbit-node.git"
   },
   "scripts": {
     "start": "node app.js",

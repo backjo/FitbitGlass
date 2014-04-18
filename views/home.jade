@@ -6,7 +6,9 @@ block content
     | Welcome to Fitbit for Glass
     br
     | There isn't much info here yet!
-    br
-    | Steps Today:#{steps}
-    br
-    | Goal Steps: #{goal}
+    h1 Fitbit Stats
+    if user
+      br
+      | Steps Today:#{steps}
+      br
+      | Goal Steps: #{goal}

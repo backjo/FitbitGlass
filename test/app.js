@@ -17,34 +17,18 @@ describe('GET /login', function() {
   });
 });
 
-describe('GET /signup', function() {
-  it('should return 200 OK', function(done) {
+describe('POST /subscription/activity', function() {
+  it('should return 204 No Content', function(done) {
     request(app)
-      .get('/signup')
-      .expect(200, done);
+      .post('/subscription/activity')
+      .expect(204, done);
   });
 });
 
-describe('GET /api', function() {
-  it('should return 200 OK', function(done) {
+describe('GET /badroute', function() {
+  it('should return 404 Not Found', function(done) {
     request(app)
-      .get('/api')
-      .expect(200, done);
-  });
-});
-
-describe('GET /contact', function() {
-  it('should return 200 OK', function(done) {
-    request(app)
-      .get('/contact')
-      .expect(200, done);
-  });
-});
-
-describe('GET /random-url', function() {
-  it('should return 404', function(done) {
-    request(app)
-      .get('/reset')
+      .get('/badroute')
       .expect(404, done);
   });
 });

@@ -122,27 +122,11 @@ app.post('/subscription/activity', subscriptionController.activities);
 
 app.get('/', homeController.index);
 app.get('/login', userController.getLogin);
-app.post('/login', userController.postLogin);
 app.get('/logout', userController.logout);
-app.get('/forgot', userController.getForgot);
-app.post('/forgot', userController.postForgot);
-app.get('/reset/:token', userController.getReset);
-app.post('/reset/:token', userController.postReset);
-app.get('/signup', userController.getSignup);
-app.post('/signup', userController.postSignup);
 app.get('/account', passportConf.isAuthenticated, userController.getAccount);
 app.post('/account/profile', passportConf.isAuthenticated, userController.postUpdateProfile);
-app.post('/account/password', passportConf.isAuthenticated, userController.postUpdatePassword);
 app.post('/account/delete', passportConf.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConf.isAuthenticated, userController.getOauthUnlink);
-
-app.get('/auth/cascade', passport.authenticate('oauth'));
-app.get('/auth/cascade/callback',
-  passport.authenticate('oauth', { failureRedirect: '/login'}),
-  function(req, res) {
-    res.redirect('/');
-  });
-
 
 app.get('/auth/google', passport.authenticate('google', { scope: 'profile email https://www.googleapis.com/auth/glass.timeline', accessType: 'offline', approvalPrompt: 'force'}));
 app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), function(req, res) {
@@ -161,13 +145,13 @@ app.get('/auth/fitbit/callback', passport.authenticate('fitbit', { failureRedire
 
 var https = require('https');
 var fs = require('fs');
-
+/*
 var options = {
     key: fs.readFileSync('/home/jonah/servernopass.key'),
     cert: fs.readFileSync('/home/jonah/jonahback_com.crt')
-}
+}*/
 
-https.createServer(options, app).listen(3001); 
+//https.createServer(options, app).listen(3001);
 
 app.listen(app.get('port'), function() {
   console.log("✔ Express server listening on port %d in %s mode", app.get('port'), app.get('env'));
