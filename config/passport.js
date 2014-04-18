@@ -5,6 +5,7 @@ var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var FitbitStrategy = require('passport-fitbit').Strategy
 var User = require('../models/User');
 var secrets = require('./secrets');
+var fitbit = require('fitbit');
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -15,6 +16,28 @@ passport.deserializeUser(function(id, done) {
     done(err, user);
   });
 });
+
+var subscribe = function(user) {
+
+  var fitbitToken = user.getFitbitToken(),
+      accessToken = fitbitToken.accessToken,
+      accessSecret = fitbitToken.secret,
+      client = null;
+      console.log("Subscribe function");
+      console.log(fitbitToken);
+
+      client = new fitbit(secrets.fitbit.consumerKey, secrets.fitbit.consumerSecret, {
+        accessToken: accessToken,
+        accessTokenSecret: accessSecret,
+        unitMeasure: 'en_GB'
+      })
+
+      client._oauth.post('https://api.fitbit.com/1/user/-/activities/api\
+Subscriptions/activity.json',client.accessToken, client.accessTokenSecret,null,null,function (err, data, res) {
+                                        console.log(data);
+                                });
+}
+
 
 /**
  * Sign in using Email and Password.
@@ -114,6 +137,7 @@ passport.use(new FitbitStrategy( secrets.fitbit, function(req, accessToken, secr
           user.tokens = _.reject(user.tokens, function(token) { return token.kind === 'fitbit'; });
           user.tokens.push({ kind: 'fitbit', accessToken: accessToken, secret: secret });
           user.save(function(err) {
+            subscribe(user);
             req.flash('info', { msg: 'Fitbit account has been linked.' });
             done(err, user);
           });
@@ -140,6 +164,7 @@ passport.use(new FitbitStrategy( secrets.fitbit, function(req, accessToken, secr
           user.fitbit = profile.id;
           user.tokens.push({ kind: 'fitbit', accessToken: accessToken, secret: secret });
           user.save(function(err) {
+            subscribe(user);
             done(err, user);
           });
         }
