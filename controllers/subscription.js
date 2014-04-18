@@ -37,7 +37,7 @@ exports.activities = function(req, res) {
                     unitMeasure: 'en_GB'
                 });
                 client.getActivities(function (err, activities) {
-                  var msgString = 'Progress Today: ' + activities.steps() + ' / ' + activities._attributes.goals.steps;
+                  var msgString = 'Steps Today: ' + activities.steps() + ' / ' + activities._attributes.goals.steps;
 		              if(user.timelineItem) {
 			                 mirrorClient.updateTimelineItem({"text":msgString, "id": user.timelineItem});
 		              } else {
